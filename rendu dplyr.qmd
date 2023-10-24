@@ -23,3 +23,87 @@ disp<-vroom(here('data','disp.csv'))
 ```
 
 It gives the number of col and rows.
+
+## joining data tables
+
+A collection of joining function of the form : "\_join"
+
+### Inner join
+
+```{r}
+
+da<-inner_join(accounts, disp)
+
+
+```
+
+Ca fait le join sur les colonnes qui ont le même nom.
+
+```{r}
+cda<-inner_join(clients,da)
+```
+
+On ne peut joindre que deux databases à la fois
+
+On indique comment on veut faire le join.
+
+```{r}
+#cda<-inner_join(clients,da, by=join_by("client_id"), suffix=c('_home','_bank'))
+cda <- inner_join(clients, da, by = c("client_id"), suffix = c('_home', '_bank'))
+
+```
+
+### Home distrct vs bank district
+
+```{r}
+home_diff_bank<-cda|>filter(district_id!=district_id_bank)|>nrow()
+```
+
+On regarde ceux dont la la bank n'est pas dans le même district.
+
+On observe que \`r home_diff_bank\` ont leur bank ailleurs.
+
+Si on veut comparer une personne à une autre en fonction de si elles ont le même compte en banque :
+
+```{r}
+cda|>group_by(account_id)|>
+  distinct(district_id_home)|>
+  summarise(N=n())|>
+  filter(N>1)
+
+
+```
+
+Tous ceux qui ont le même compte vivent dans le mm district.
+
+```{r}
+
+clients|>
+  ggplot(aes(x=gender))+
+  geom_bar()
+```
+
+```{r}
+cda|>
+  count(gender, type) #it seems that there is no gender effect
+```
+
+```{r}
+cda|>
+  count(gender, type)|>
+  mutate(freq=n/sum(n))|>
+  select(-n)|> ungroup()#group are not useful here
+  #pivot_wider(values_from = freq, names_from = type)
+  
+```
+
+```{r}
+cda|>
+  ggplot(aes(y=gender,fill=type))+
+  geom_bar(position = "fill")
+```
+
+```{r}
+chisq.test(cda|>pull(gender),
+           cda|>pull(type))
+```
