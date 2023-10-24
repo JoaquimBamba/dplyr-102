@@ -1,0 +1,25 @@
+---
+title: "rendu dplyr 102"
+format: html
+editor: visual
+---
+
+```{r}
+#| message:F
+library(here)
+library(vroom)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+
+```{r, message=FALSE}
+
+
+clients<-vroom(here('data','client.csv'))
+accounts<-vroom(here('data','account.csv'))
+disp<-vroom(here('data','disp.csv'))
+
+```
+
+It gives the number of col and rows.
